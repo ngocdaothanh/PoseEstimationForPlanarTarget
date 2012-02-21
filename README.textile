@@ -1,0 +1,43 @@
+h1. Pose Estimation For Planar Target
+					
+This is an OpenCV port of "Robust Pose Estimation from a Planar Target":http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.89.6052&rep=rep1&type=pdf (2006) by Gerald Schweighofer and Axel Pinz using their Matlab code from the link in the paper. It is used to determine the pose of a planar target. It can be used for Augmented Reality to track a planar target, such as a business card.
+The algorithm is very robust and does not require accurate calibration of the camera for Augmented Reality applications. I found that a rough guess for the FOV of my webcam worked.
+h1. Download
+Last update 7 December 2011
+Fixed some major bugs in the previous version. Should fix any problems people had in the past. Valgrind found some critical bugs that been addressed. It should now run through Valgrind without reporting a single error!
+"RobustPlanarPose-1.1.1.zip":http://nghiaho.com/uploads/code/RobustPlanarPose-1.1.1.zip
+%{=color: #ff0000;}Changes from last version%
+
+Bug fixed from line 1030 to 1032 of RPP.cpp, incorrect indexing of matrix. Thanks to Tatsiana!
+Improved the demo code to be easier to understand
+
+h1. Requirements
+
+OpenCV 2.x or later
+
+h1. Usage
+
+On Linux, type *make* to compile the demo code and *./demo *to see how it works. On Windows you have to make your own project.
+To use this code in your own program you only need to call the function
+*RPP:Rpp(const cv::Mat &model_3D, const cv::Mat &iprts, cv::Mat *Rlu, cv::Mat *tlu, int *it1, double *obj_err1, double *img_err1);*
+A description of the parameters are as follows:
+*%{=color: #0000ff;}model_3D%* are the fixed 3D points of the object you want to track, they should never change throughout the program. For example, say we have a square card we want to track, we can arbitrarily choose (-1,-1,0), (-1,1,0), (1,1,0), (1,-1,0) as the 4 corners point in 3D space. The values you choose will determine the reference frame for which the estimated pose will be relative to. Using the same example, (0,0,0) in this case will be at the centre of the square card.
+*%{=color: #0000ff;}iprts%* are the *normalised* image points. You will need to form a typical 3×3 camera matrix to normalise the points, which we shall call K. K typically looks like
+!http://s.wordpress.com/latex.php?latex=K%20%3D%20%5Cleft%5B%5Cbegin%7Barray%7D%7Bccc%7Dfx%20%26%200%20%26%20cx%20%5C%5C%200%20%26%20fy%20%26%20cy%20%5C%5C%200%20%26%200%20%26%201%20%5Cend%7Barray%7D%5Cright%5D&bg=ffffff&fg=000000&s=0(K = left[begin{array}{ccc}fx & 0 & cx  0 & fy & cy  0 & 0 & 1 end{array}right])!
+fx/fy are the focal lengths (in pixels) and cx/cy are the optical centres. For Augmented Reality application, I find you can get away with rough approximations. For example, say the webcam has a horizontal FOV of about 60 degrees and the image size is 640×480. Then the 4 parameters are:
+cx = 640/2 = 320
+cy = 480/2 = 240
+fx = fy = cx/tan(60/2 * pi / 180) = 554.26
+Now that you have K, to normalise the points simply do
+!http://s.wordpress.com/latex.php?latex=%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7Dx%5E%7B%27%7D%20%5C%5C%20y%5E%7B%27%7D%20%5C%5C%201%20%5Cend%7Barray%7D%5Cright%5D%20%3D%20K%5E%7B-1%7D%20%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7Dx%20%5C%5C%20y%20%5C%5C%201%20%5Cend%7Barray%7D%5Cright%5D&bg=ffffff&fg=000000&s=0(left[begin{array}{c}x^{'}  y^{'}  1 end{array}right] = K^{-1} left[begin{array}{c}x  y  1 end{array}right])!
+where x and y are the un-normalised image points
+*
+%{=color: #0000ff;}*Rlu%* is the returned 3×3 rotation matrix. If you pass in a valid 3×3 matrix the it will be used as the initial guess of the rotation. In a tracking scenario you would continuously feedback the returned Rlu as input for the next frame.
+*%{=color: #0000ff;}*tlu%* is the returned 3×1 translation vector
+*%{=color: #0000ff;}*it1%* is the number of iterations done
+*%{=color: #0000ff;}*obj_err1%* is the object projection error in 3D
+*%{=color: #0000ff;}*img_err1%* is the image projection error, in normalised image point space
+
+h1. License
+
+Simplified BSD License, unless superseded by a license from the original Matlab code or the copy and paste code for Rpoly.cpp.
