@@ -1,0 +1,46 @@
+											<h1 class="entry-title">Pose Estimation For Planar Target</h1>
+					
+					<div class="entry-content">
+						<p>This is an OpenCV port of <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.89.6052&amp;rep=rep1&amp;type=pdf">Robust Pose Estimation from a Planar Target</a> (2006) by Gerald Schweighofer and Axel Pinz using their Matlab code from the link in the paper. It is used to determine the pose of a planar target. It can be used for Augmented Reality to track a planar target, such as a business card.</p>
+<p>The algorithm is very robust and does not require accurate calibration of the camera for Augmented Reality applications. I found that a rough guess for the FOV of my webcam worked.</p>
+<h1>Download</h1>
+<p>Last update 7 December 2011<br />
+
+Fixed some major bugs in the previous version. Should fix any problems people had in the past. Valgrind found some critical bugs that been addressed. It should now run through Valgrind without reporting a single error!</p>
+<p><a href="http://nghiaho.com/uploads/code/RobustPlanarPose-1.1.1.zip">RobustPlanarPose-1.1.1.zip</a></p>
+<p><span style="color: #ff0000;">Changes from last version</span></p>
+<ul>
+<li>Bug fixed from line 1030 to 1032 of RPP.cpp, incorrect indexing of matrix. Thanks to Tatsiana!</li>
+<li>Improved the demo code to be easier to understand</li>
+</ul>
+<h1>Requirements</h1>
+<ul>
+<li>OpenCV 2.x or later</li>
+
+</ul>
+<h1>Usage</h1>
+<p>On Linux, type <strong>make</strong> to compile the demo code and <strong>./demo </strong>to see how it works. On Windows you have to make your own project.</p>
+<p>To use this code in your own program you only need to call the function</p>
+<p><strong>RPP:Rpp(const cv::Mat &amp;model_3D, const cv::Mat &amp;iprts, cv::Mat *Rlu, cv::Mat *tlu, int *it1, double *obj_err1, double *img_err1);</strong></p>
+<p>A description of the parameters are as follows:</p>
+
+<p><strong><span style="color: #0000ff;">model_3D</span></strong> are the fixed 3D points of the object you want to track, they should never change throughout the program. For example, say we have a square card we want to track, we can arbitrarily choose (-1,-1,0), (-1,1,0), (1,1,0), (1,-1,0) as the 4 corners point in 3D space. The values you choose will determine the reference frame for which the estimated pose will be relative to. Using the same example, (0,0,0) in this case will be at the centre of the square card.</p>
+<p><strong><span style="color: #0000ff;">iprts</span></strong> are the <strong>normalised</strong> image points. You will need to form a typical 3&#215;3 camera matrix to normalise the points, which we shall call K. K typically looks like</p>
+<img src='http://s.wordpress.com/latex.php?latex=K%20%3D%20%5Cleft%5B%5Cbegin%7Barray%7D%7Bccc%7Dfx%20%26%200%20%26%20cx%20%5C%5C%200%20%26%20fy%20%26%20cy%20%5C%5C%200%20%26%200%20%26%201%20%5Cend%7Barray%7D%5Cright%5D&#038;bg=ffffff&#038;fg=000000&#038;s=0' alt='K = \left[\begin{array}{ccc}fx &amp; 0 &amp; cx \\ 0 &amp; fy &amp; cy \\ 0 &amp; 0 &amp; 1 \end{array}\right]' title='K = \left[\begin{array}{ccc}fx &amp; 0 &amp; cx \\ 0 &amp; fy &amp; cy \\ 0 &amp; 0 &amp; 1 \end{array}\right]' class='latex' />
+<p>fx/fy are the focal lengths (in pixels) and cx/cy are the optical centres. For Augmented Reality application, I find you can get away with rough approximations. For example, say the webcam has a horizontal FOV of about 60 degrees and the image size is 640&#215;480. Then the 4 parameters are:</p>
+<p>cx = 640/2 = 320<br />
+
+cy = 480/2 = 240<br />
+fx = fy = cx/tan(60/2 * pi / 180) = 554.26</p>
+<p>Now that you have K, to normalise the points simply do</p>
+<img src='http://s.wordpress.com/latex.php?latex=%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7Dx%5E%7B%27%7D%20%5C%5C%20y%5E%7B%27%7D%20%5C%5C%201%20%5Cend%7Barray%7D%5Cright%5D%20%3D%20K%5E%7B-1%7D%20%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7Dx%20%5C%5C%20y%20%5C%5C%201%20%5Cend%7Barray%7D%5Cright%5D&#038;bg=ffffff&#038;fg=000000&#038;s=0' alt='\left[\begin{array}{c}x^{&#039;} \\ y^{&#039;} \\ 1 \end{array}\right] = K^{-1} \left[\begin{array}{c}x \\ y \\ 1 \end{array}\right]' title='\left[\begin{array}{c}x^{&#039;} \\ y^{&#039;} \\ 1 \end{array}\right] = K^{-1} \left[\begin{array}{c}x \\ y \\ 1 \end{array}\right]' class='latex' />
+<p>where x and y are the un-normalised image points<br />
+<strong><br />
+<span style="color: #0000ff;">*Rlu</span></strong> is the returned 3&#215;3 rotation matrix. If you pass in a valid 3&#215;3 matrix the it will be used as the initial guess of the rotation. In a tracking scenario you would continuously feedback the returned Rlu as input for the next frame.</p>
+<p><strong><span style="color: #0000ff;">*tlu</span></strong> is the returned 3&#215;1 translation vector</p>
+
+<p><strong><span style="color: #0000ff;">*it1</span></strong> is the number of iterations done</p>
+<p><strong><span style="color: #0000ff;">*obj_err1</span></strong> is the object projection error in 3D</p>
+<p><strong><span style="color: #0000ff;">*img_err1</span></strong> is the image projection error, in normalised image point space</p>
+<h1>License</h1>
+<p>Simplified BSD License, unless superseded by a license from the original Matlab code or the copy and paste code for Rpoly.cpp.</p>
