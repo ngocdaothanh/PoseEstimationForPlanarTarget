@@ -45,12 +45,12 @@ Now that you have K, to normalise the points simply do
 !http://s.wordpress.com/latex.php?latex=%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7Dx%5E%7B%27%7D%20%5C%5C%20y%5E%7B%27%7D%20%5C%5C%201%20%5Cend%7Barray%7D%5Cright%5D%20%3D%20K%5E%7B-1%7D%20%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7Dx%20%5C%5C%20y%20%5C%5C%201%20%5Cend%7Barray%7D%5Cright%5D&bg=ffffff&fg=000000&s=0(left[begin{array}{c}x^{'}  y^{'}  1 end{array}right] = K^{-1} left[begin{array}{c}x  y  1 end{array}right])!
 
 where x and y are the un-normalised image points
-*
-*Rlu* is the returned 3×3 rotation matrix. If you pass in a valid 3×3 matrix the it will be used as the initial guess of the rotation. In a tracking scenario you would continuously feedback the returned Rlu as input for the next frame.
-**tlu* is the returned 3×1 translation vector
-**it1* is the number of iterations done
-**obj_err1* is the object projection error in 3D
-**img_err1* is the image projection error, in normalised image point space
+
+* *Rlu* is the returned 3×3 rotation matrix. If you pass in a valid 3×3 matrix the it will be used as the initial guess of the rotation. In a tracking scenario you would continuously feedback the returned Rlu as input for the next frame.
+* *tlu* is the returned 3×1 translation vector
+* *it1* is the number of iterations done
+* *obj_err1* is the object projection error in 3D
+* *img_err1* is the image projection error, in normalised image point space
 
 h1. License
 
